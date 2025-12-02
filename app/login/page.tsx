@@ -55,11 +55,12 @@ export default function LoginPage() {
         Login
       </button>
 
-      {message && (
-        <p style={{ marginTop: 20, color: error ? "red" : "green" }}>
-          {message}
-        </p>
-      )}
+{message && (
+  <p style={{ marginTop: 20, color: "#d00" }}>
+    {message}
+  </p>
+)}
+
     </div>
   );
 }
