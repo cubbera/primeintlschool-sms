@@ -1,66 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
-
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-
-  async function handleLogin() {
-    setMessage("");
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setMessage(error.message);
-    } else {
-      setMessage("Login successful!");
-    }
-  }
-
+export default function PaymentPlanTable({ plan }) {
   return (
-    <div style={{ maxWidth: 400, margin: "60px auto", textAlign: "center" }}>
-      <h2>Login</h2>
+    <div style={{
+      padding: 16,
+      border: "1px solid #ccc",
+      borderRadius: 8,
+      marginBottom: 20
+    }}>
+      <h2 style={{ color: "#004AAD" }}>Generated Payment Plan</h2>
 
-      <input
-        type="email"
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 10 }}
-      />
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr style={{ background: "#004AAD", color: "white" }}>
+            <th style={{ padding: 8 }}>Month</th>
+            <th style={{ padding: 8 }}>Due Date</th>
+            <th style={{ padding: 8 }}>Tuition (Ks)</th>
+          </tr>
+        </thead>
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 10 }}
-      />
-
-      <button
-        onClick={handleLogin}
-        style={{
-          width: "100%",
-          padding: 10,
-          background: "#004AAD",
-          color: "white",
-          border: "none",
-          borderRadius: 6,
-        }}
-      >
-        Login
-      </button>
-
-{message && (
-  <p style={{ marginTop: 20, color: "#d00" }}>
-    {message}
-  </p>
-)}
-
+        <tbody>
+          {plan.map((p, i) => (
+            <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
+              <td style={{ padding: 8 }}>{p.month}</td>
+              <td style={{ padding: 8 }}>{p.due_date}</td>
+              <td style={{ padding: 8 }}>{p.amount}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

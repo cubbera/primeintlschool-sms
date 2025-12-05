@@ -1,66 +1,62 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../../../lib/supabaseClient";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+export default function DiscountSelector({ discounts, setDiscounts, onCalculate }) {
+  const [discountOptions, setDiscountOptions] = useState([]);
 
-  async function handleLogin() {
-    setMessage("");
+  useEffect(() => {
+    async function loadDiscounts() {
+      const { data, error } = await supabase
+        .from("discount_types")
+        .select("*")
+        .eq("is_active", true)
+        .order("priority_group", { ascending: true });
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+      if (!error) setDiscountOptions(data);
+    }
+    loadDiscounts();
+  }, []);
 
-    if (error) {
-      setMessage(error.message);
-    } else {
-      setMessage("Login successful!");
+  function addDiscount(id) {
+    if (!id) return;
+    const d = discountOptions.find((item) => item.discount_type_id === id);
+    if (d && !discounts.includes(d)) {
+      setDiscounts([...discounts, d]);
     }
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "60px auto", textAlign: "center" }}>
-      <h2>Login</h2>
+    <div style={{ marginBottom: 30 }}>
+      <h2 style={{ color: "#004AAD" }}>Discounts</h2>
 
-      <input
-        type="email"
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 10 }}
-      />
-
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 10 }}
-      />
-
-      <button
-        onClick={handleLogin}
-        style={{
-          width: "100%",
-          padding: 10,
-          background: "#004AAD",
-          color: "white",
-          border: "none",
-          borderRadius: 6,
-        }}
+      {/* Add Discount */}
+      <select
+        onChange={(e) => addDiscount(e.target.value)}
+        style={{ padding: 8, marginBottom: 12, width: "100%" }}
       >
-        Login
-      </button>
+        <option value="">Select discount...</option>
+        {discountOptions.map((d) => (
+          <option key={d.discount_type_id} value={d.discount_type_id}>
+            {d.discount_name_type} — {d.discount_kind === "FIXED"
+              ? `${d.value_fixed} Ks`
+              : `${d.value_percent}%`}
+          </option>
+        ))}
+      </select>
 
-{message && (
-  <p style={{ marginTop: 20, color: "#d00" }}>
-    {message}
-  </p>
-)}
-
+      {/* Display Selected Discounts */}
+      <ul style={{ background: "#eee", padding: 12, borderRadius: 6 }}>
+        {discounts.map((d) => (
+          <li key={d.discount_type_id}>
+            {d.discount_name_type}  
+            {d.discount_kind === "FIXED"
+              ? ` (-${d.value_fixed})`
+              : ` (-${d.value_percent}%)`}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
