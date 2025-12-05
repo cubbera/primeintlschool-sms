@@ -1,0 +1,87 @@
+/* --- Layout --- */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px;
+  background: #fafafa;
+  border-radius: 14px;
+}
+
+.section {
+  background: white;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.04);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+/* --- Inputs --- */
+.label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+  color: #444;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row > div {
+  flex: 1;
+}
+
+/* --- Button --- */
+.button {
+  width: 100%;
+  padding: 14px;
+  background: #a3c4f3; /* pastel blue */
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #91b8ee;
+}
+
+/* --- Table --- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.table th {
+  background: #f4f7ff;
+  font-weight: 700;
+}

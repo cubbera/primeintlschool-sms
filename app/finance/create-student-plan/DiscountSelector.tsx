@@ -1,55 +1,64 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { supabase } from "../../../lib/supabaseClient";
+import { useState, useEffect } from "react";
 
-import {
-  DiscountType,
-  TuitionInfoType,
-  PaymentPlanItem
-} from "../../types/discount";
+export default function DiscountSelector({ discounts, setDiscounts, onCalculate }: any) {
+  const [options, setOptions] = useState<any[]>([]);
 
-
-export default function DiscountSelector({
-  discounts,
-  setDiscounts,
-  onCalculate,
-}: {
-  discounts: DiscountType[];
-  setDiscounts: (d: DiscountType[]) => void;
-  onCalculate: (t: TuitionInfoType, p: PaymentPlanItem[]) => void;
-}) {
-  const [options, setOptions] = useState<DiscountType[]>([]);
-
+  // Load discounts from DB (simplified for now)
   useEffect(() => {
     async function load() {
-      const { data } = await supabase.from("discount_types").select("*");
-      if (data) setOptions(data);
+      const res = await fetch("/api/mock-discounts"); // TODO replace with supabase
+      const data = await res.json();
+      setOptions(data);
     }
     load();
   }, []);
 
-  const addDiscount = (id: string) => {
-    const d = options.find((x) => x.discount_type_id === id);
-    if (!d) return;
-
+  function addDiscount(d: any) {
     setDiscounts([...discounts, d]);
-  };
+  }
+
+  function calculate() {
+    // Temporary simple calculation
+    const tuitionBefore = 4200000;
+    const prorated = tuitionBefore;
+    const discountTotal = discounts.reduce((sum, d) => sum + (d.value || 0), 0);
+    const final = prorated - discountTotal;
+
+    const tuitionInfo = {
+      tuition_before: tuitionBefore,
+      prorated,
+      discounts: discountTotal,
+      final_tuition: final,
+    };
+
+    const plan = [
+      { month: "August", due_date: "2025-08-01", tuition_amount: final / 8 },
+      { month: "September", due_date: "2025-09-01", tuition_amount: final / 8 },
+    ];
+
+    onCalculate(tuitionInfo, plan);
+  }
 
   return (
     <div>
-      <select onChange={(e) => addDiscount(e.target.value)}>
-        <option value="">-- add discount --</option>
+      <select onChange={(e) => addDiscount(JSON.parse(e.target.value))}>
+        <option value="">Select discount…</option>
         {options.map((d) => (
-          <option key={d.discount_type_id} value={d.discount_type_id}>
-            {d.discount_name_type} — {d.value_percent ?? d.value_fixed}
+          <option key={d.id} value={JSON.stringify(d)}>
+            {d.name}
           </option>
         ))}
       </select>
 
+      <button style={{ marginTop: 12 }} onClick={calculate}>
+        Calculate Tuition
+      </button>
+
       <ul>
-        {discounts.map((d) => (
-          <li key={d.discount_type_id}>{d.discount_name_type}</li>
+        {discounts.map((d, i) => (
+          <li key={i}>{d.name}</li>
         ))}
       </ul>
     </div>

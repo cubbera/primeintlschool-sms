@@ -1,16 +1,10 @@
 "use client";
 
-import { PaymentPlanItem } from "../../types/discount";
+import styles from "./page.module.css";
 
-export default function PaymentPlanTable({
-  plan,
-}: {
-  plan: PaymentPlanItem[];
-}) {
-  if (!plan || plan.length === 0) return null;
-
+export default function PaymentPlanTable({ plan }: any) {
   return (
-    <table style={{ marginTop: 20, width: "100%", borderCollapse: "collapse" }}>
+    <table className={styles.table}>
       <thead>
         <tr>
           <th>Month</th>
@@ -18,13 +12,12 @@ export default function PaymentPlanTable({
           <th>Tuition</th>
         </tr>
       </thead>
-
       <tbody>
-        {plan.map((p, idx) => (
-          <tr key={idx}>
+        {plan.map((p: any, i: number) => (
+          <tr key={i}>
             <td>{p.month}</td>
             <td>{p.due_date}</td>
-            <td>{p.tuition_amount.toLocaleString()}</td>
+            <td>{p.tuition_amount.toLocaleString()} Ks</td>
           </tr>
         ))}
       </tbody>
