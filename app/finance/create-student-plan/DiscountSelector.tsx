@@ -6,8 +6,9 @@ import { supabase } from "../../../lib/supabaseClient";
 import {
   DiscountType,
   TuitionInfoType,
-  PaymentPlanItem,
+  PaymentPlanItem
 } from "../../types/discount";
+
 
 export default function DiscountSelector({
   discounts,
