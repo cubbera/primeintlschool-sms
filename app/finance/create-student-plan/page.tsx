@@ -1,89 +1,111 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./page.module.css";
-import DiscountSelector from "./DiscountSelector";
-import TuitionCalculation from "./TuitionCalculation";
-import PaymentPlanTable from "./PaymentPlanTable";
 
-type PaymentPlanItem = {
-  month: string;
-  due_date: string;
-  tuition_amount: number;
-};
-
-type TuitionInfo = {
-  tuition_before: number;
-  prorated: number;
-  discounts: number;
-  final_tuition: number;
-};
-
-export default function CreateStudentPlanPage() {
+export default function CreateStudentPlan() {
+  const [enrollFor, setEnrollFor] = useState("");
+  const [enrollType, setEnrollType] = useState("new");
   const [studentName, setStudentName] = useState("");
   const [fatherName, setFatherName] = useState("");
-
-  const [discounts, setDiscounts] = useState<any[]>([]);
-  const [tuitionInfo, setTuitionInfo] = useState<TuitionInfo | null>(null);
-  const [paymentPlan, setPaymentPlan] = useState<PaymentPlanItem[]>([]);
+  const [studentId, setStudentId] = useState("");
 
   return (
-    <div className={styles.container}>
-      {/* SECTION 1 — Student Info */}
-      <div className={styles.section}>
-        <div className={styles.title}>Student Information</div>
+    <div style={{ maxWidth: "700px", margin: "0 auto" }}>
+      <h1 style={{ marginBottom: "20px" }}>Create Student Plan</h1>
 
-        <label className={styles.label}>Full Name</label>
-        <input
-          className={styles.input}
-          value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
-        />
+      {/* STEP 1 — ENROLL FOR */}
+      <div
+        style={{
+          padding: "20px",
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          marginBottom: "20px",
+        }}
+      >
+        <h3>Step 1 — Enrollment</h3>
 
-        <label className={styles.label}>Father's Name</label>
-        <input
-          className={styles.input}
-          value={fatherName}
-          onChange={(e) => setFatherName(e.target.value)}
-        />
+        <label>Select Enrollment Option:</label>
+        <select
+          value={enrollFor}
+          onChange={(e) => setEnrollFor(e.target.value)}
+          style={{ display: "block", marginTop: "8px", padding: "8px" }}
+        >
+          <option value="">Select…</option>
+          <option value="AY25">Academic Year 2025–2026</option>
+          <option value="SUM2026">Summer 2026</option>
+          <option value="AY26">Academic Year 2026–2027</option>
+          <option value="TE">Tiny Explorer (10-weeks)</option>
+        </select>
 
-        <div style={{ marginTop: 10, fontSize: 14, opacity: 0.7 }}>
-          Student ID will be auto-generated (e.g., PR2025xxx)
+        {/* ENROLL TYPE */}
+        <div style={{ marginTop: "20px" }}>
+          <label>Enroll Type:</label>
+          <div style={{ marginTop: "8px" }}>
+            <label>
+              <input
+                type="radio"
+                checked={enrollType === "new"}
+                onChange={() => setEnrollType("new")}
+              />
+              New Student
+            </label>
+            <label style={{ marginLeft: "20px" }}>
+              <input
+                type="radio"
+                checked={enrollType === "current"}
+                onChange={() => setEnrollType("current")}
+              />
+              Current Student
+            </label>
+          </div>
+        </div>
+
+        {/* STUDENT FIELDS */}
+        <div style={{ marginTop: "20px" }}>
+          {enrollType === "new" ? (
+            <>
+              <label>Student Full Name:</label>
+              <input
+                type="text"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                style={{ display: "block", padding: "8px", marginTop: "6px" }}
+              />
+
+              <label style={{ marginTop: "10px" }}>Father’s Name:</label>
+              <input
+                type="text"
+                value={fatherName}
+                onChange={(e) => setFatherName(e.target.value)}
+                style={{ display: "block", padding: "8px", marginTop: "6px" }}
+              />
+
+              {/* Auto student ID preview */}
+              {enrollFor && (
+                <p style={{ marginTop: "10px", color: "green" }}>
+                  Student ID will be auto-generated (prefix based on {enrollFor})
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <label>Enter Student ID:</label>
+              <input
+                type="text"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+                style={{ display: "block", padding: "8px", marginTop: "6px" }}
+              />
+
+              <p style={{ marginTop: "10px", color: "gray" }}>
+                System will auto-fetch student details.
+              </p>
+            </>
+          )}
         </div>
       </div>
 
-      {/* SECTION 2 — Discounts */}
-      <div className={styles.section}>
-        <div className={styles.title}>Discounts</div>
-        <DiscountSelector
-          discounts={discounts}
-          setDiscounts={setDiscounts}
-          onCalculate={(tuition: TuitionInfo, plan: PaymentPlanItem[]) => {
-            setTuitionInfo(tuition);
-            setPaymentPlan(plan);
-          }}
-        />
-      </div>
-
-      {/* SECTION 3 — Tuition Calculation */}
-      {tuitionInfo && (
-        <div className={styles.section}>
-          <div className={styles.title}>Tuition Summary</div>
-          <TuitionCalculation tuitionInfo={tuitionInfo} />
-        </div>
-      )}
-
-      {/* SECTION 4 — Payment Plan */}
-      {paymentPlan.length > 0 && (
-        <div className={styles.section}>
-          <div className={styles.title}>Payment Plan</div>
-          <PaymentPlanTable plan={paymentPlan} />
-        </div>
-      )}
-
-      {paymentPlan.length > 0 && (
-        <button className={styles.button}>Submit & Generate Invoice</button>
-      )}
+      <p style={{ opacity: 0.4 }}>More steps will be added after cleanup.</p>
     </div>
   );
 }

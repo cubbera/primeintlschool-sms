@@ -1,64 +1,55 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import "./styles.css";
 
 export default function LoginPage() {
+  const supabase = createSupabaseBrowserClient();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleLogin(e: any) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
 
-    setLoading(false);
-
     if (error) {
-      setError(error.message);
+      setErrorMsg(error.message);
       return;
     }
 
-    window.location.href = "/";
-  };
+    window.location.href = "/finance/create-student-plan";
+  }
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h2>Login</h2>
+      <h2>Login</h2>
 
-        {error && <div className="error">{error}</div>}
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <form onSubmit={handleLogin}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        {errorMsg && <p className="error">{errorMsg}</p>}
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
-      </div>
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
 }

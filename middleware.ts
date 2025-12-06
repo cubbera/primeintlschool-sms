@@ -1,35 +1,29 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createSupabaseClient } from "@supabase/auth-helpers-shared";
+import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next({
-    request: { headers: req.headers },
-  });
+  const res = NextResponse.next();
 
-  const supabase = createSupabaseClient(
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    },
-    {
-      request: req,
-      response: res,
+      cookies: {
+        get(name: string) {
+          return req.cookies.get(name)?.value;
+        },
+      },
     }
   );
 
-  // Check user session
   const {
-    data: { session },
-  } = await supabase.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const protectedRoutes = ["/finance", "/admin", "/students"];
+  const protectedRoutes = ["/finance", "/admin"];
 
-  const isProtected = protectedRoutes.some((route) =>
-    req.nextUrl.pathname.startsWith(route)
-  );
-
-  if (!session && isProtected) {
+  if (!user && protectedRoutes.some((r) => req.nextUrl.pathname.startsWith(r))) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -37,5 +31,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/finance/:path*", "/admin/:path*", "/students/:path*"],
+  matcher: ["/finance/:path*", "/admin/:path*"],
 };
