@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createServerClient } from "@supabase/auth-helpers-shared";
+import { createSupabaseClient } from "@supabase/auth-helpers-shared";
 
 export async function middleware(req: NextRequest) {
-  // Must create a response first
   const res = NextResponse.next({
-    request: {
-      headers: req.headers,
-    },
+    request: { headers: req.headers },
   });
 
-  // Create Supabase client (edge safe)
-  const supabase = createServerClient(
+  const supabase = createSupabaseClient(
     {
       supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
       supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -22,12 +18,13 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  // Get current auth session
+  // Check user session
   const {
     data: { session },
   } = await supabase.getSession();
 
-  const protectedRoutes = ["/finance", "/students", "/admin"];
+  const protectedRoutes = ["/finance", "/admin", "/students"];
+
   const isProtected = protectedRoutes.some((route) =>
     req.nextUrl.pathname.startsWith(route)
   );
@@ -40,5 +37,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/finance/:path*", "/students/:path*", "/admin/:path*"],
+  matcher: ["/finance/:path*", "/admin/:path*", "/students/:path*"],
 };
