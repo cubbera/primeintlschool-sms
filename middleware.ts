@@ -1,34 +1,30 @@
 import { NextResponse } from "next/server";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "./lib/supabaseClient";
 
 export async function middleware(req: any) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
+  const { data } = await supabase.auth.getSession();
+  const session = data.session;
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  // Not logged in -> redirect
+  // Not logged in → redirect
   if (!session) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
   const role = session.user.user_metadata.role;
 
-  // Finance pages allowed: superadmin + accountant
+  // accountants-only pages
   if (req.nextUrl.pathname.startsWith("/finance")) {
-    if (role !== "superadmin" && role !== "accountant") {
+    if (role !== "accountant" && role !== "super_admin") {
       return NextResponse.redirect(new URL("/forbidden", req.url));
     }
   }
 
-  // Admin-only pages
+  // admin-only pages
   if (req.nextUrl.pathname.startsWith("/admin")) {
-    if (role !== "superadmin") {
+    if (role !== "super_admin") {
       return NextResponse.redirect(new URL("/forbidden", req.url));
     }
   }
 
-  return res;
+  return NextResponse.next();
 }
